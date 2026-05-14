@@ -82,4 +82,3 @@ def get_user_repositories(username: str):
     except requests.exceptions.RequestException as error:
         logger.error(f"Repository fetch error: {error}")
         return []
-   
