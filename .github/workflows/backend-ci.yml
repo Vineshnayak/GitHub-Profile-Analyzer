@@ -1,0 +1,41 @@
+name: Backend CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  backend-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Verify FastAPI Imports
+        run: |
+          cd backend
+          python -c "from app.main import app"
+
+      - name: Backend Startup Test
+        run: |
+          cd backend
+          timeout 10s python -m uvicorn app.main:app
