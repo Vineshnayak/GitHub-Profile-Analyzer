@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 # Backend API URL
-API_URL = "http://127.0.0.1:8000/analyze"
+API_URL = "https://github-profile-analyzer-3vy1.onrender.com"
 
 # Streamlit page settings
 st.set_page_config(
