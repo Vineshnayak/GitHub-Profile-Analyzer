@@ -1,65 +1,118 @@
 # GitHub Profile Analyzer
 
-A full-stack developer analytics platform that analyzes GitHub profiles and generates professional developer insights using GitHub APIs, FastAPI, Streamlit, and DevOps workflows.
+Developer analytics platform built using FastAPI, Streamlit, and GitHub APIs.
+
+The platform analyzes GitHub profiles and generates recruiter-style insights, developer analytics, contribution statistics, and markdown-based technical resumes.
 
 ---
 
-## Live Demo
+# Live Demo
 
-### Frontend
+Frontend:  
 https://git-profile-analyzer-vinesh.streamlit.app
 
-### Backend API Docs
+Backend API Docs:  
 https://github-profile-analyzer-3vy1.onrender.com/docs
 
 ---
 
-## Features
+# Features
 
-- GitHub profile analysis
-- Repository analytics
-- Language usage statistics
-- Developer scoring system
-- Tech stack extraction
-- Repository statistics
-- Interactive dashboard
-- API-based architecture
-- CI/CD pipelines using GitHub Actions
-- Production deployment
+## AI Recruiter Analysis
+
+Analyzes repositories and developer activity to generate:
+
+- Recommended developer roles
+- Technical strengths
+- Weak areas
+- Hiring insights
 
 ---
 
-## Tech Stack
+## Developer DNA
 
-### Backend
-- Python
+Generates developer personality insights based on repository patterns, technologies, and contribution behavior.
+
+Examples:
+- Rapid Builder
+- Backend Focused
+- Experimentation Driven
+
+---
+
+## GitHub Wrapped
+
+Provides developer activity analytics including:
+
+- Productivity score
+- Repository statistics
+- Contribution analytics
+- Most productive coding hour
+- Estimated active days
+- Top languages used
+
+---
+
+## Startup Readiness Score
+
+Evaluates engineering practices and project maturity including:
+
+- Deployment readiness
+- CI/CD adoption
+- Repository structure quality
+- Development workflow indicators
+
+---
+
+## AI Resume Generator
+
+Generates a markdown-based technical resume using:
+
+- GitHub repositories
+- Technologies used
+- Project summaries
+- Profile analytics
+
+---
+
+# Technology Stack
+
+## Backend
+
 - FastAPI
+- Pydantic
+- Uvicorn
 - Requests
 
-### Frontend
+## Frontend
+
 - Streamlit
+- Plotly
 - Pandas
 
-### DevOps
+## DevOps & Tooling
+
 - GitHub Actions
+- Ruff
+- Pytest
 - Render
-- Streamlit Cloud
+- Streamlit Community Cloud
 
 ---
 
-## Architecture
+# System Architecture
 
 ```text
-Frontend (Streamlit)
+Streamlit Frontend
         ↓
-Backend API (FastAPI)
+FastAPI Backend
         ↓
 GitHub REST API
 ```
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 GitHub-Profile-Analyzer/
@@ -68,21 +121,20 @@ GitHub-Profile-Analyzer/
 │   ├── app/
 │   │   ├── analysis/
 │   │   ├── api/
+│   │   ├── models/
 │   │   ├── services/
-│   │   ├── utils/
-│   │   └── main.py
+│   │   └── utils/
 │   │
-│   ├── requirements.txt
-│   └── .env
+│   ├── tests/
+│   └── requirements.txt
 │
 ├── frontend/
+│   ├── components/
+│   ├── utils/
 │   ├── app.py
 │   └── requirements.txt
 │
-├── .github/
-│   └── workflows/
-│
-└── README.md
+└── .github/workflows/
 ```
 
 ---
@@ -92,12 +144,12 @@ GitHub-Profile-Analyzer/
 ## Clone Repository
 
 ```bash
-git clone https://github.com/Vineshnayak/github-profile-analyzer.git
+git clone https://github.com/Vineshnayak/GitHub-Profile-Analyzer.git
 ```
 
 ---
 
-## Backend Setup
+# Backend Setup
 
 ```bash
 cd backend
@@ -111,9 +163,15 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+Backend runs on:
+
+```text
+http://127.0.0.1:8000
+```
+
 ---
 
-## Frontend Setup
+# Frontend Setup
 
 ```bash
 cd frontend
@@ -127,30 +185,78 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
----
+Frontend runs on:
 
-# GitHub Actions CI/CD
-
-This project includes:
-
-- Automated backend testing
-- Linting workflows
-- CI pipelines
-- Deployment-ready workflows
+```text
+http://localhost:8501
+```
 
 ---
 
-# Future Enhancements
+# API Endpoints
 
-- Contribution graph analysis
-- Commit frequency analytics
-- AI-based developer recommendations
-- Resume generation
-- Skill benchmarking
-- GitHub trend analysis
+| Endpoint | Description |
+|---|---|
+| `/profile/{username}` | GitHub profile analytics |
+| `/resume/{username}` | Resume generation |
+| `/wrapped/{username}` | GitHub Wrapped analytics |
+
+---
+
+# Testing
+
+Run backend tests:
+
+```bash
+python -m pytest
+```
+
+---
+
+# Linting
+
+Run Ruff linter:
+
+```bash
+python -m ruff check .
+```
+
+---
+
+# CI/CD
+
+GitHub Actions workflow automatically runs:
+
+- Lint checks
+- Backend tests
+- Dependency validation
+
+on every push to `main`.
+
+---
+
+# Deployment
+
+## Backend
+
+Deployed using Render.
+
+## Frontend
+
+Deployed using Streamlit Community Cloud.
+
+---
+
+# Future Improvements
+
+- PDF resume export
+- Repository semantic analysis
+- GitHub contribution heatmaps
+- AI interview question generation
+- Authentication support
 
 ---
 
 # Author
 
-## Vinesh nayak
+Vinesh Nayak
