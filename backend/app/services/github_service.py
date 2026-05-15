@@ -1,13 +1,12 @@
-import logging
 import requests
 
+from app.utils.logger import logger
 from app.config import GITHUB_TOKEN
 
-# Logger setup
-logger = logging.getLogger(__name__)
 
 # Base GitHub API URL
 BASE_URL = "https://api.github.com"
+
 
 # Request headers
 HEADERS = {
@@ -34,19 +33,27 @@ def get_user_profile(username: str):
 
         # User not found
         if response.status_code == 404:
+
             logger.warning(f"User not found: {username}")
+
             return None
 
         response.raise_for_status()
 
+        logger.info("Profile fetched successfully")
+
         return response.json()
 
     except requests.exceptions.Timeout:
+
         logger.error("GitHub API timeout")
+
         return None
 
     except requests.exceptions.RequestException as error:
+
         logger.error(f"GitHub API error: {error}")
+
         return None
 
 
@@ -68,17 +75,25 @@ def get_user_repositories(username: str):
         )
 
         if response.status_code != 200:
+
             logger.warning(
                 f"Failed fetching repos for {username}"
             )
+
             return []
+
+        logger.info("Repositories fetched successfully")
 
         return response.json()
 
     except requests.exceptions.Timeout:
+
         logger.error("Repository request timeout")
+
         return []
 
     except requests.exceptions.RequestException as error:
+
         logger.error(f"Repository fetch error: {error}")
+
         return []
