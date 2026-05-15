@@ -1,114 +1,230 @@
 import requests
 import pandas as pd
-import matplotlib          
-matplotlib.use("Agg")      
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import streamlit as st
 
 
 # Backend API URL
 API_URL = "https://github-profile-analyzer-3vy1.onrender.com/analyze"
-# Streamlit page settings
+
+
+# Streamlit page configuration
 st.set_page_config(
     page_title="GitHub Profile Analyzer",
+    page_icon="📊",
     layout="wide"
 )
 
-# Title
-st.title("GitHub Profile Analyzer")
 
-# Subtitle
-st.write("Analyze GitHub developer profiles")
+# App title
+st.title("📊 GitHub Profile Analyzer")
+
+st.write(
+    "Analyze GitHub developer profiles professionally"
+)
+
 
 # Username input
 username = st.text_input(
     "Enter GitHub Username"
 )
 
+
 # Analyze button
 if st.button("Analyze Profile"):
 
+    # Empty username validation
     if username.strip() == "":
-        st.warning("Please enter a username")
+
+        st.warning("Please enter a GitHub username")
 
     else:
 
-        # API request
-        response = requests.get(
-            f"{API_URL}/{username}"
-        )
+        # Loading spinner
+        with st.spinner("Analyzing GitHub profile..."):
 
-        # Success response
-        if response.status_code == 200:
+            try:
 
-            data = response.json()
-
-            # Top section
-            st.header("Developer Overview")
-
-            col1, col2, col3, col4 = st.columns(4)
-
-            col1.metric(
-                "Developer Score",
-                data["developer_score"]
-            )
-
-            col2.metric(
-                "Followers",
-                data["followers"]
-            )
-
-            col3.metric(
-                "Repositories",
-                data["public_repositories"]
-            )
-
-            col4.metric(
-                "Total Stars",
-                data["total_stars"]
-            )
-
-            # Profile info
-            st.subheader("Profile Information")
-
-            st.write(f"Name: {data['name']}")
-            st.write(f"Bio: {data['bio']}")
-
-            # Tech stack
-            st.subheader("Tech Stack")
-
-            st.write(data["tech_stack"])
-
-            # Language chart
-            st.subheader("Top Languages")
-
-            languages = data["top_languages"]
-
-            if languages:
-
-                language_names = list(languages.keys())
-                language_counts = list(languages.values())
-
-                fig, ax = plt.subplots()
-
-                ax.bar(
-                    language_names,
-                    language_counts
+                response = requests.get(
+                    f"{API_URL}/{username}",
+                    timeout=15
                 )
 
-                ax.set_xlabel("Languages")
-                ax.set_ylabel("Repository Count")
+                # Successful response
+                if response.status_code == 200:
 
-                st.pyplot(fig)
+                    data = response.json()
 
-            # Repository table
-            st.subheader("Repositories")
+                    st.success("Profile analyzed successfully")
 
-            repo_df = pd.DataFrame(
-                data["repositories"]
-            )
+                    # ---------------------------
+                    # Profile Header
+                    # ---------------------------
 
-            st.dataframe(repo_df)
+                    col1, col2 = st.columns([1, 4])
 
-        else:
-            st.error("GitHub user not found")
+                    with col1:
+
+                        st.image(
+                            f"https://github.com/{username}.png",
+                            width=150
+                        )
+
+                    with col2:
+
+                        st.subheader(data["name"])
+
+                        st.write(data["bio"])
+
+                        github_url = (
+                            f"https://github.com/{username}"
+                        )
+
+                        st.markdown(
+                            f"[🔗 View GitHub Profile]"
+                            f"({github_url})"
+                        )
+
+                    st.divider()
+
+                    # ---------------------------
+                    # Metrics Section
+                    # ---------------------------
+
+                    st.subheader("Developer Statistics")
+
+                    metric1, metric2, metric3, metric4 = (
+                        st.columns(4)
+                    )
+
+                    metric1.metric(
+                        "Developer Score",
+                        data["developer_score"]
+                    )
+
+                    metric2.metric(
+                        "Followers",
+                        data["followers"]
+                    )
+
+                    metric3.metric(
+                        "Repositories",
+                        data["public_repositories"]
+                    )
+
+                    metric4.metric(
+                        "Total Stars",
+                        data["total_stars"]
+                    )
+
+                    st.divider()
+
+                    # ---------------------------
+                    # Tech Stack
+                    # ---------------------------
+
+                    st.subheader("Tech Stack")
+
+                    st.write(data["tech_stack"])
+
+                    st.divider()
+
+                    # ---------------------------
+                    # Language Chart
+                    # ---------------------------
+
+                    st.subheader("Top Languages")
+
+                    languages = data["top_languages"]
+
+                    if languages:
+
+                        language_names = list(
+                            languages.keys()
+                        )
+
+                        language_counts = list(
+                            languages.values()
+                        )
+
+                        fig, ax = plt.subplots()
+
+                        ax.bar(
+                            language_names,
+                            language_counts
+                        )
+
+                        ax.set_xlabel("Languages")
+
+                        ax.set_ylabel(
+                            "Repository Count"
+                        )
+
+                        ax.set_title(
+                            "Language Usage"
+                        )
+
+                        st.pyplot(fig)
+
+                    st.divider()
+
+                    # ---------------------------
+                    # Repository Table
+                    # ---------------------------
+
+                    st.subheader("Repositories")
+
+                    repository_data = []
+
+                    for repo in data["repositories"]:
+
+                        repository_data.append({
+                            "Repository":
+                                repo["name"],
+
+                            "Language":
+                                repo["language"],
+
+                            "Stars":
+                                repo["stars"],
+
+                            "Forks":
+                                repo["forks"]
+                        })
+
+                    repo_df = pd.DataFrame(
+                        repository_data
+                    )
+
+                    st.dataframe(
+                        repo_df,
+                        use_container_width=True
+                    )
+
+                else:
+
+                    st.error(
+                        "GitHub user not found"
+                    )
+
+            except requests.exceptions.Timeout:
+
+                st.error(
+                    "Request timed out. Try again."
+                )
+
+            except requests.exceptions.RequestException:
+
+                st.error(
+                    "Backend connection failed"
+                )
+
+            except Exception as error:
+
+                st.error(
+                    f"Unexpected error: {error}"
+                )
