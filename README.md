@@ -49,11 +49,13 @@ https://github-profile-analyzer-3vy1.onrender.com/docs
 
 ## Architecture
 
+```text
 Frontend (Streamlit)
         ↓
 Backend API (FastAPI)
         ↓
 GitHub REST API
+```
 
 ---
 
@@ -81,3 +83,74 @@ GitHub-Profile-Analyzer/
 │   └── workflows/
 │
 └── README.md
+```
+
+---
+
+# Local Setup
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Vineshnayak/github-profile-analyzer.git
+```
+
+---
+
+## Backend Setup
+
+```bash
+cd backend
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+streamlit run app.py
+```
+
+---
+
+# GitHub Actions CI/CD
+
+This project includes:
+
+- Automated backend testing
+- Linting workflows
+- CI pipelines
+- Deployment-ready workflows
+
+---
+
+# Future Enhancements
+
+- Contribution graph analysis
+- Commit frequency analytics
+- AI-based developer recommendations
+- Resume generation
+- Skill benchmarking
+- GitHub trend analysis
+
+---
+
+# Author
+
+## Vinesh nayak
