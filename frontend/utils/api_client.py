@@ -1,7 +1,7 @@
 import requests
 import os
 
-BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
+BASE_URL = os.getenv("BACKEND_URL", "https://github-profile-analyzer-3vy1.onrender.com").rstrip("/")
 
 
 def get_profile_data(username):
