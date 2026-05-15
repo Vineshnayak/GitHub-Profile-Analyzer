@@ -7,8 +7,7 @@ import streamlit as st
 
 
 # Backend API URL
-API_URL = "https://github-profile-analyzer-3vy1.onrender.com"
-
+API_URL = "https://github-profile-analyzer-3vy1.onrender.com/analyze"
 # Streamlit page settings
 st.set_page_config(
     page_title="GitHub Profile Analyzer",
