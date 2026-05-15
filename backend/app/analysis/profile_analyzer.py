@@ -118,4 +118,3 @@ def calculate_developer_score(
     score += min(active_repositories * 2, 20)
 
     return round(score)
-

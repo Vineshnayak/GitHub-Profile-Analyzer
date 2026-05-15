@@ -108,7 +108,7 @@ class GitHubService:
             return []
 
         data = response.json()
-        filtered_repositories=[
+        filtered_repositories = [
             repo
             for repo in data
             if not repo.get("fork")

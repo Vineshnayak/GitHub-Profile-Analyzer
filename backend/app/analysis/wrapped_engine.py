@@ -117,7 +117,7 @@ def generate_wrapped_data(
             }
 
             for repo in top_repositories
-        ],
+                ],
 
         "contribution_analytics":
             contribution_data
