@@ -1,10 +1,5 @@
 import requests
 import pandas as pd
-import matplotlib
-
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 import streamlit as st
 
 
@@ -17,6 +12,18 @@ st.set_page_config(
     page_title="GitHub Profile Analyzer",
     page_icon="📊",
     layout="wide"
+)
+
+
+# Sidebar
+st.sidebar.title("GitHub Profile Analyzer")
+
+st.sidebar.info(
+    """
+    Analyze GitHub developer profiles,
+    repositories, tech stacks,
+    and developer activity.
+    """
 )
 
 
@@ -59,7 +66,9 @@ if st.button("Analyze Profile"):
 
                     data = response.json()
 
-                    st.success("Profile analyzed successfully")
+                    st.success(
+                        "Profile analyzed successfully"
+                    )
 
                     # ---------------------------
                     # Profile Header
@@ -95,7 +104,9 @@ if st.button("Analyze Profile"):
                     # Metrics Section
                     # ---------------------------
 
-                    st.subheader("Developer Statistics")
+                    st.subheader(
+                        "Developer Statistics"
+                    )
 
                     metric1, metric2, metric3, metric4 = (
                         st.columns(4)
@@ -143,32 +154,22 @@ if st.button("Analyze Profile"):
 
                     if languages:
 
-                        language_names = list(
-                            languages.keys()
+                        language_df = pd.DataFrame({
+                            "Language": list(
+                                languages.keys()
+                            ),
+                            "Count": list(
+                                languages.values()
+                            )
+                        })
+
+                        language_df = (
+                            language_df.set_index(
+                                "Language"
+                            )
                         )
 
-                        language_counts = list(
-                            languages.values()
-                        )
-
-                        fig, ax = plt.subplots()
-
-                        ax.bar(
-                            language_names,
-                            language_counts
-                        )
-
-                        ax.set_xlabel("Languages")
-
-                        ax.set_ylabel(
-                            "Repository Count"
-                        )
-
-                        ax.set_title(
-                            "Language Usage"
-                        )
-
-                        st.pyplot(fig)
+                        st.bar_chart(language_df)
 
                     st.divider()
 
@@ -184,7 +185,9 @@ if st.button("Analyze Profile"):
 
                         repository_data.append({
                             "Repository":
-                                repo["name"],
+                                f"https://github.com/"
+                                f"{username}/"
+                                f"{repo['name']}",
 
                             "Language":
                                 repo["language"],
@@ -202,7 +205,8 @@ if st.button("Analyze Profile"):
 
                     st.dataframe(
                         repo_df,
-                        use_container_width=True
+                        use_container_width=True,
+                        hide_index=True
                     )
 
                 else:
@@ -228,3 +232,11 @@ if st.button("Analyze Profile"):
                 st.error(
                     f"Unexpected error: {error}"
                 )
+
+
+st.divider()
+
+st.caption(
+    "Built using FastAPI, Streamlit, "
+    "GitHub API, and GitHub Actions"
+)
