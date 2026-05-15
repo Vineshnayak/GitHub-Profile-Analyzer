@@ -1,7 +1,10 @@
 import requests
 import pandas as pd
+import matplotlib          
+matplotlib.use("Agg")      
 import matplotlib.pyplot as plt
 import streamlit as st
+
 
 # Backend API URL
 API_URL = "https://github-profile-analyzer-3vy1.onrender.com"
