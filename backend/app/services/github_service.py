@@ -1,99 +1,120 @@
 import requests
 
-from app.utils.logger import logger
-from app.config import GITHUB_TOKEN
+from app.config.settings import (
+    settings
+)
+
+from app.utils.cache import (
+    get_cache,
+    set_cache
+)
+
+from app.utils.logger import (
+    logger
+)
 
 
-# Base GitHub API URL
-BASE_URL = "https://api.github.com"
+class GitHubService:
 
+    @staticmethod
+    def get_profile(username: str):
 
-# Request headers
-HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}"
-}
-
-
-def get_user_profile(username: str):
-    """
-    Fetch GitHub user profile
-    """
-
-    try:
-
-        url = f"{BASE_URL}/users/{username}"
-
-        logger.info(f"Fetching profile for {username}")
-
-        response = requests.get(
-            url,
-            headers=HEADERS,
-            timeout=10
+        cache_key = (
+            f"profile_{username}"
         )
 
-        # User not found
-        if response.status_code == 404:
-
-            logger.warning(f"User not found: {username}")
-
-            return None
-
-        response.raise_for_status()
-
-        logger.info("Profile fetched successfully")
-
-        return response.json()
-
-    except requests.exceptions.Timeout:
-
-        logger.error("GitHub API timeout")
-
-        return None
-
-    except requests.exceptions.RequestException as error:
-
-        logger.error(f"GitHub API error: {error}")
-
-        return None
-
-
-def get_user_repositories(username: str):
-    """
-    Fetch GitHub repositories
-    """
-
-    try:
-
-        url = f"{BASE_URL}/users/{username}/repos"
-
-        logger.info(f"Fetching repositories for {username}")
-
-        response = requests.get(
-            url,
-            headers=HEADERS,
-            timeout=10
+        cached_data = (
+            get_cache(cache_key)
         )
+
+        if cached_data:
+
+            logger.info(
+                f"Cache hit: {username}"
+            )
+
+            return cached_data
+
+        url = (
+            f"{settings.GITHUB_API_URL}"
+            f"/users/{username}"
+        )
+
+        logger.info(
+            f"Fetching profile: "
+            f"{username}"
+        )
+
+        response = requests.get(url)
 
         if response.status_code != 200:
 
-            logger.warning(
-                f"Failed fetching repos for {username}"
+            logger.error(
+                f"GitHub API error: "
+                f"{response.status_code}"
+            )
+
+            return None
+
+        data = response.json()
+
+        set_cache(
+            cache_key,
+            data
+        )
+
+        return data
+
+    @staticmethod
+    def get_repositories(
+        username: str
+    ):
+
+        cache_key = (
+            f"repos_{username}"
+        )
+
+        cached_data = (
+            get_cache(cache_key)
+        )
+
+        if cached_data:
+
+            logger.info(
+                f"Repo cache hit: "
+                f"{username}"
+            )
+
+            return cached_data
+
+        url = (
+            f"{settings.GITHUB_API_URL}"
+            f"/users/{username}/repos"
+        )
+
+        logger.info(
+            f"Fetching repositories: "
+            f"{username}"
+        )
+
+        response = requests.get(url)
+
+        if response.status_code != 200:
+
+            logger.error(
+                "Repository fetch failed"
             )
 
             return []
 
-        logger.info("Repositories fetched successfully")
-
-        return response.json()
-
-    except requests.exceptions.Timeout:
-
-        logger.error("Repository request timeout")
-
-        return []
-
-    except requests.exceptions.RequestException as error:
-
-        logger.error(f"Repository fetch error: {error}")
-
-        return []
+        data = response.json()
+        filtered_repositories=[
+            repo
+            for repo in data
+            if not repo.get("fork")
+        ]
+        set_cache(
+            cache_key,
+            filtered_repositories
+        )
+        return filtered_repositories

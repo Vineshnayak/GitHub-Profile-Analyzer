@@ -1,26 +1,46 @@
-import logging
-
 from fastapi import FastAPI
 
-from app.api.routes import router
+from app.api.routes.profile import (
+    router as profile_router
+)
 
-# Logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+from app.api.routes.resume import (
+    router as resume_router
+)
+
+from app.api.routes.wrapped import (
+    router as wrapped_router
 )
 
 app = FastAPI(
     title="GitHub Profile Analyzer",
-    description="Analyze GitHub developer profiles",
     version="1.0.0"
 )
 
-app.include_router(router)
+app.include_router(
+    profile_router,
+    prefix="/profile",
+    tags=["Profile Analysis"]
+)
+
+app.include_router(
+    resume_router,
+    prefix="/resume",
+    tags=["Resume Generator"]
+)
+
+app.include_router(
+    wrapped_router,
+    prefix="/wrapped",
+    tags=["GitHub Wrapped"]
+)
 
 
 @app.get("/")
-def home():
+def root():
+
     return {
-        "message": "GitHub Profile Analyzer API is running"
+
+        "message":
+            "GitHub Profile Analyzer API Running"
     }

@@ -1,242 +1,258 @@
-import requests
-import pandas as pd
 import streamlit as st
+import pandas as pd
 
+from components.sidebar import (
+    render_sidebar
+)
 
-# Backend API URL
-API_URL = "https://github-profile-analyzer-3vy1.onrender.com/analyze"
+from components.cards import (
+    render_profile_cards
+)
 
+from components.charts import (
+    render_language_chart
+)
 
-# Streamlit page configuration
+from components.wrapped import (
+    render_wrapped_section
+)
+
+from components.dna import (
+    render_dna_section
+)
+
+from components.startup import (
+    render_startup_section
+)
+
+from utils.api_client import (
+    get_profile_data,
+    get_wrapped_data,
+    get_resume_data
+)
+
 st.set_page_config(
-    page_title="GitHub Profile Analyzer",
-    page_icon="📊",
+
+    page_title=
+        "GitHub Profile Analyzer",
+
     layout="wide"
 )
 
-
-# Sidebar
-st.sidebar.title("GitHub Profile Analyzer")
-
-st.sidebar.info(
-    """
-    Analyze GitHub developer profiles,
-    repositories, tech stacks,
-    and developer activity.
-    """
+st.title(
+    "GitHub Profile Analyzer"
 )
 
-
-# App title
-st.title("📊 GitHub Profile Analyzer")
-
-st.write(
-    "Analyze GitHub developer profiles professionally"
+st.caption(
+    "AI-powered developer analytics "
+    "platform"
 )
 
-
-# Username input
-username = st.text_input(
-    "Enter GitHub Username"
+username, analyze_button = (
+    render_sidebar()
 )
 
+if analyze_button and username:
 
-# Analyze button
-if st.button("Analyze Profile"):
+    with st.spinner(
+        "Analyzing GitHub profile..."
+    ):
 
-    # Empty username validation
-    if username.strip() == "":
+        profile_data = (
+            get_profile_data(username)
+        )
 
-        st.warning("Please enter a GitHub username")
+        wrapped_data = (
+            get_wrapped_data(username)
+        )
+
+        resume_data = (
+            get_resume_data(username)
+        )
+
+    if not profile_data:
+
+        st.error(
+            "GitHub user not found"
+        )
 
     else:
 
-        # Loading spinner
-        with st.spinner("Analyzing GitHub profile..."):
+        profile = (
+            profile_data["profile"]
+        )
 
-            try:
+        col1, col2 = st.columns(
+            [1, 4]
+        )
 
-                response = requests.get(
-                    f"{API_URL}/{username}",
-                    timeout=15
+        with col1:
+
+            st.image(
+                profile["avatar_url"],
+                width=140
+            )
+
+        with col2:
+
+            st.header(
+                profile["name"]
+            )
+
+            st.write(
+                profile["bio"]
+            )
+
+            st.markdown(
+
+                f"""
+                🔗 [GitHub Profile]
+                ({profile['profile_url']})
+                """
+            )
+
+        st.markdown("---")
+
+        render_profile_cards(
+            profile
+        )
+
+        st.markdown("---")
+
+        render_language_chart(
+
+            profile_data[
+                "language_stats"
+            ]
+        )
+
+        st.markdown("---")
+
+        st.subheader(
+            "AI Recruiter Analysis"
+        )
+
+        recruiter = (
+            profile_data[
+                "recruiter_analysis"
+            ]
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            st.write(
+                "Recommended Roles"
+            )
+
+            for role in recruiter[
+                "recommended_roles"
+            ]:
+
+                st.success(role)
+
+        with col2:
+
+            st.write("Strengths")
+
+            for strength in recruiter[
+                "strengths"
+            ]:
+
+                st.info(strength)
+
+        st.write("Weaknesses")
+
+        for weakness in recruiter[
+            "weaknesses"
+        ]:
+
+            st.warning(weakness)
+
+        st.markdown("---")
+
+        render_dna_section(
+
+            profile_data[
+                "developer_dna"
+            ]
+        )
+
+        st.markdown("---")
+
+        render_startup_section(
+
+            profile_data[
+                "startup_readiness"
+            ]
+        )
+
+        st.markdown("---")
+
+        render_wrapped_section(
+            wrapped_data
+        )
+
+        st.markdown("---")
+
+        st.subheader(
+            "AI Resume Generator"
+        )
+
+        if resume_data:
+
+            resume_markdown = (
+                resume_data[
+                    "markdown_resume"
+                ]
+            )
+
+            st.download_button(
+
+                label=
+                    "Download Resume",
+
+                data=resume_markdown,
+
+                file_name=(
+                    f"{username}_resume.md"
+                ),
+
+                mime="text/markdown"
+            )
+
+            with st.expander(
+                "Preview Resume"
+            ):
+
+                st.markdown(
+                    resume_markdown
                 )
 
-                # Successful response
-                if response.status_code == 200:
+        st.markdown("---")
 
-                    data = response.json()
+        st.subheader(
+            "Repositories"
+        )
 
-                    st.success(
-                        "Profile analyzed successfully"
-                    )
+        repositories = pd.DataFrame(
 
-                    # ---------------------------
-                    # Profile Header
-                    # ---------------------------
+            profile_data[
+                "repositories"
+            ]
+        )
 
-                    col1, col2 = st.columns([1, 4])
+        repositories = (
+            repositories.sort_values(
 
-                    with col1:
+                by="stars",
 
-                        st.image(
-                            f"https://github.com/{username}.png",
-                            width=150
-                        )
+                ascending=False
+            )
+        )
 
-                    with col2:
-
-                        st.subheader(data["name"])
-
-                        st.write(data["bio"])
-
-                        github_url = (
-                            f"https://github.com/{username}"
-                        )
-
-                        st.markdown(
-                            f"[🔗 View GitHub Profile]"
-                            f"({github_url})"
-                        )
-
-                    st.divider()
-
-                    # ---------------------------
-                    # Metrics Section
-                    # ---------------------------
-
-                    st.subheader(
-                        "Developer Statistics"
-                    )
-
-                    metric1, metric2, metric3, metric4 = (
-                        st.columns(4)
-                    )
-
-                    metric1.metric(
-                        "Developer Score",
-                        data["developer_score"]
-                    )
-
-                    metric2.metric(
-                        "Followers",
-                        data["followers"]
-                    )
-
-                    metric3.metric(
-                        "Repositories",
-                        data["public_repositories"]
-                    )
-
-                    metric4.metric(
-                        "Total Stars",
-                        data["total_stars"]
-                    )
-
-                    st.divider()
-
-                    # ---------------------------
-                    # Tech Stack
-                    # ---------------------------
-
-                    st.subheader("Tech Stack")
-
-                    st.write(data["tech_stack"])
-
-                    st.divider()
-
-                    # ---------------------------
-                    # Language Chart
-                    # ---------------------------
-
-                    st.subheader("Top Languages")
-
-                    languages = data["top_languages"]
-
-                    if languages:
-
-                        language_df = pd.DataFrame({
-                            "Language": list(
-                                languages.keys()
-                            ),
-                            "Count": list(
-                                languages.values()
-                            )
-                        })
-
-                        language_df = (
-                            language_df.set_index(
-                                "Language"
-                            )
-                        )
-
-                        st.bar_chart(language_df)
-
-                    st.divider()
-
-                    # ---------------------------
-                    # Repository Table
-                    # ---------------------------
-
-                    st.subheader("Repositories")
-
-                    repository_data = []
-
-                    for repo in data["repositories"]:
-
-                        repository_data.append({
-                            "Repository":
-                                f"https://github.com/"
-                                f"{username}/"
-                                f"{repo['name']}",
-
-                            "Language":
-                                repo["language"],
-
-                            "Stars":
-                                repo["stars"],
-
-                            "Forks":
-                                repo["forks"]
-                        })
-
-                    repo_df = pd.DataFrame(
-                        repository_data
-                    )
-
-                    st.dataframe(
-                        repo_df,
-                        use_container_width=True,
-                        hide_index=True
-                    )
-
-                else:
-
-                    st.error(
-                        "GitHub user not found"
-                    )
-
-            except requests.exceptions.Timeout:
-
-                st.error(
-                    "Request timed out. Try again."
-                )
-
-            except requests.exceptions.RequestException:
-
-                st.error(
-                    "Backend connection failed"
-                )
-
-            except Exception as error:
-
-                st.error(
-                    f"Unexpected error: {error}"
-                )
-
-
-st.divider()
-
-st.caption(
-    "Built using FastAPI, Streamlit, "
-    "GitHub API, and GitHub Actions"
-)
+        st.dataframe(
+            repositories,
+            use_container_width=True
+        )
